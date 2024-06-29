@@ -23,11 +23,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   9 .debug_frame  0000009c  00000000  00000000  0000636c  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00001a35  00000000  00000000  00006408  2**0
+ 10 .debug_str    00001a46  00000000  00000000  00006408  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    0000016b  00000000  00000000  00007e3d  2**0
+ 11 .debug_loc    0000016b  00000000  00000000  00007e4e  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000030  00000000  00000000  00007fa8  2**0
+ 12 .debug_ranges 00000030  00000000  00000000  00007fb9  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -157,10 +157,9 @@ void offsetsignals(){//etapa de autocalibracion por promedio, pequeño filtro dig
  10c:	08 95       	ret
 
 0000010e <setup>:
+	}
 void setup(void)
 {
-	//pasos_de_encendido power_sequence = Apagado;
-	
 
 	ccp_write_io((void *) & (CLKCTRL.MCLKCTRLB), (CLKCTRL_PDIV_2X_gc|CLKCTRL_PEN_bm));//Maxima frecuencia de lectura de pwm en señal de reloj per
  10e:	61 e0       	ldi	r22, 0x01	; 1
@@ -222,8 +221,6 @@ void setup(void)
 	timer_1 = 0x00;
  154:	10 92 02 28 	sts	0x2802, r1	; 0x802802 <timer_1>
  158:	10 92 03 28 	sts	0x2803, r1	; 0x802803 <timer_1+0x1>
-	
-	
 	
 	//ADC
 	VREF.CTRLA = VREF_ADC0REFSEL_4V34_gc;// Se selecciona la referencia a 2.5 volts par mejorar la resolucion de los sensores
@@ -455,15 +452,13 @@ int main(void)
 	
 	PORTC.OUTCLR = PIN2_bm;
  2ba:	1e 83       	std	Y+6, r17	; 0x06
-	//}
-	
-	//if ((timer_1>8000)&&(secuencia!=Encendido_completo)){
-		//secuencia = Apagado;
-	//}
-	if ((ADC_boton>0xbb))//
+    while (1) 
+    {
+
+	if ((ADC_boton>boton_adc))//Se requiere detectar cambios en la señal el voltaje de ADC boton no es estatico
  2bc:	80 91 06 28 	lds	r24, 0x2806	; 0x802806 <ADC_boton>
  2c0:	90 91 07 28 	lds	r25, 0x2807	; 0x802807 <ADC_boton+0x1>
- 2c4:	8c 3b       	cpi	r24, 0xBC	; 188
+ 2c4:	81 3c       	cpi	r24, 0xC1	; 193
  2c6:	91 05       	cpc	r25, r1
  2c8:	50 f0       	brcs	.+20     	; 0x2de <main+0x4c>
 	{
@@ -471,7 +466,7 @@ int main(void)
  2ca:	81 e0       	ldi	r24, 0x01	; 1
  2cc:	80 93 01 28 	sts	0x2801, r24	; 0x802801 <empezar_secuencia>
 		if (apagar)
- 2d0:	80 91 00 28 	lds	r24, 0x2800	; 0x802800 <_edata>
+ 2d0:	80 91 00 28 	lds	r24, 0x2800	; 0x802800 <__DATA_REGION_ORIGIN__>
  2d4:	88 23       	and	r24, r24
  2d6:	81 f0       	breq	.+32     	; 0x2f8 <main+0x66>
 		{
@@ -490,7 +485,7 @@ int main(void)
  2e6:	10 92 01 28 	sts	0x2801, r1	; 0x802801 <empezar_secuencia>
 		}
 		if (apagar)
- 2ea:	80 91 00 28 	lds	r24, 0x2800	; 0x802800 <_edata>
+ 2ea:	80 91 00 28 	lds	r24, 0x2800	; 0x802800 <__DATA_REGION_ORIGIN__>
  2ee:	88 23       	and	r24, r24
  2f0:	19 f0       	breq	.+6      	; 0x2f8 <main+0x66>
 		{
@@ -501,7 +496,7 @@ int main(void)
 		
 	}
 	
-	switch(secuencia){
+	switch(secuencia){//maquina de estados para encender el HSS
  2f8:	80 91 08 28 	lds	r24, 0x2808	; 0x802808 <secuencia>
  2fc:	82 30       	cpi	r24, 0x02	; 2
  2fe:	09 f4       	brne	.+2      	; 0x302 <main+0x70>
@@ -569,11 +564,11 @@ int main(void)
  35a:	80 e2       	ldi	r24, 0x20	; 32
  35c:	86 83       	std	Z+6, r24	; 0x06
 			if (!apagar)
- 35e:	80 91 00 28 	lds	r24, 0x2800	; 0x802800 <_edata>
+ 35e:	80 91 00 28 	lds	r24, 0x2800	; 0x802800 <__DATA_REGION_ORIGIN__>
  362:	81 11       	cpse	r24, r1
  364:	ab cf       	rjmp	.-170    	; 0x2bc <main+0x2a>
 			{
-				TCA0.SINGLE.CMP2 = 0x018;
+				TCA0.SINGLE.CMP2 = 0x018;//Para encendido suave, carga de capacitores
  366:	e0 e0       	ldi	r30, 0x00	; 0
  368:	fa e0       	ldi	r31, 0x0A	; 10
  36a:	88 e1       	ldi	r24, 0x18	; 24
@@ -633,17 +628,17 @@ int main(void)
 			PORTA.OUTSET = PIN6_bm;
  3b6:	80 e4       	ldi	r24, 0x40	; 64
  3b8:	80 93 05 04 	sts	0x0405, r24	; 0x800405 <__TEXT_REGION_LENGTH__+0x7f4405>
-			if ((ADC_boton>0xbb))
+			if ((ADC_boton>boton_adc))
  3bc:	80 91 06 28 	lds	r24, 0x2806	; 0x802806 <ADC_boton>
  3c0:	90 91 07 28 	lds	r25, 0x2807	; 0x802807 <ADC_boton+0x1>
- 3c4:	8c 3b       	cpi	r24, 0xBC	; 188
+ 3c4:	81 3c       	cpi	r24, 0xC1	; 193
  3c6:	91 05       	cpc	r25, r1
  3c8:	18 f4       	brcc	.+6      	; 0x3d0 <main+0x13e>
 			{
 				}else{
 				apagar = true;
  3ca:	81 e0       	ldi	r24, 0x01	; 1
- 3cc:	80 93 00 28 	sts	0x2800, r24	; 0x802800 <_edata>
+ 3cc:	80 93 00 28 	sts	0x2800, r24	; 0x802800 <__DATA_REGION_ORIGIN__>
 				}		
 			PORTC.OUTSET = PIN2_bm;//lED 1 ON
  3d0:	84 e0       	ldi	r24, 0x04	; 4
