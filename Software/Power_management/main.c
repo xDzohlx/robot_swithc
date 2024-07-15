@@ -17,7 +17,7 @@ typedef unsigned char bool;
 #define false 0
 #define true 1
 
-#define boton_adc 0xC0
+#define boton_adc 0xD0
 
  enum pasos_de_encendido{
 Apagado = 0,

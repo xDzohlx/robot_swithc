@@ -458,7 +458,7 @@ int main(void)
 	if ((ADC_boton>boton_adc))//Se requiere detectar cambios en la señal el voltaje de ADC boton no es estatico
  2bc:	80 91 06 28 	lds	r24, 0x2806	; 0x802806 <ADC_boton>
  2c0:	90 91 07 28 	lds	r25, 0x2807	; 0x802807 <ADC_boton+0x1>
- 2c4:	81 3c       	cpi	r24, 0xC1	; 193
+ 2c4:	81 3d       	cpi	r24, 0xD1	; 209
  2c6:	91 05       	cpc	r25, r1
  2c8:	50 f0       	brcs	.+20     	; 0x2de <main+0x4c>
 	{
@@ -631,7 +631,7 @@ int main(void)
 			if ((ADC_boton>boton_adc))
  3bc:	80 91 06 28 	lds	r24, 0x2806	; 0x802806 <ADC_boton>
  3c0:	90 91 07 28 	lds	r25, 0x2807	; 0x802807 <ADC_boton+0x1>
- 3c4:	81 3c       	cpi	r24, 0xC1	; 193
+ 3c4:	81 3d       	cpi	r24, 0xD1	; 209
  3c6:	91 05       	cpc	r25, r1
  3c8:	18 f4       	brcc	.+6      	; 0x3d0 <main+0x13e>
 			{
