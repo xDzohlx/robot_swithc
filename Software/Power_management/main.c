@@ -2,8 +2,10 @@
  * Power_management.c
  *
  * Created: 08/06/2024 15:41:55
- * Author : Usuario
+ * Author : xDzohlx
  */ 
+
+//To do mejorar la deteccion de boton por el ADC
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -14,6 +16,8 @@
 typedef unsigned char bool;
 #define false 0
 #define true 1
+
+#define boton_adc 0xD0
 
  enum pasos_de_encendido{
 Apagado = 0,
@@ -44,8 +48,6 @@ void offsetsignals(){//etapa de autocalibracion por promedio, pequeño filtro dig
 	}
 void setup(void)
 {
-	//pasos_de_encendido power_sequence = Apagado;
-	
 
 	ccp_write_io((void *) & (CLKCTRL.MCLKCTRLB), (CLKCTRL_PDIV_2X_gc|CLKCTRL_PEN_bm));//Maxima frecuencia de lectura de pwm en señal de reloj per
 	
@@ -73,8 +75,6 @@ void setup(void)
 	TCB0.CCMP = 0xFA0;//Valor top 4000 interrupcion cada milisegundo
 	TCB0.INTCTRL |= TCB_CAPT_bm;//habilita la interrupcion
 	timer_1 = 0x00;
-	
-	
 	
 	//ADC
 	VREF.CTRLA = VREF_ADC0REFSEL_4V34_gc;// Se selecciona la referencia a 2.5 volts par mejorar la resolucion de los sensores
@@ -154,25 +154,7 @@ int main(void)
     while (1) 
     {
 
-	//PORTC.OUTSET = PIN2_bm;
-	//PORTA.OUTSET = PIN2_bm;
-	//_delay_ms(2000);
-	//timer_1 = 0x00;
-	//secuencia++;
-	//while((ADC_boton>0xbb)&&(!empezar_secuencia)){
-		//PORTC.OUTSET = PIN2_bm;
-		//PORTA.OUTCLR = PIN5_bm|PIN6_bm|PIN7_bm;
-	//}
-	//empezar_secuencia = true;
-	//while((ADC_boton>0xbb)&&(secuencia == Encendido_completo)){
-		//PORTC.OUTSET = PIN2_bm;
-		//PORTA.OUTCLR = PIN5_bm|PIN6_bm|PIN7_bm;
-	//}
-	
-	//if ((timer_1>8000)&&(secuencia!=Encendido_completo)){
-		//secuencia = Apagado;
-	//}
-	if ((ADC_boton>0xbb))//
+	if ((ADC_boton>boton_adc))//Se requiere detectar cambios en la señal el voltaje de ADC boton no es estatico
 	{
 		empezar_secuencia=true;
 		if (apagar)
@@ -192,7 +174,7 @@ int main(void)
 		
 	}
 	
-	switch(secuencia){
+	switch(secuencia){//maquina de estados para encender el HSS
 		case Apagado:
 			PORTA.OUTCLR = PIN2_bm;//HSS off
 			PORTF.OUTCLR = PIN4_bm;//VCC off power off
@@ -216,7 +198,7 @@ int main(void)
 			PORTA.OUTCLR = PIN5_bm;//LED 4 OFF
 			if (!apagar)
 			{
-				TCA0.SINGLE.CMP2 = 0x018;
+				TCA0.SINGLE.CMP2 = 0x018;//Para encendido suave, carga de capacitores
 				TCA0.SINGLE.CTRLA |= TCA_SINGLE_ENABLE_bm;//Habilitar pwm
 			}
 		//_delay_ms(7500);
@@ -238,7 +220,7 @@ int main(void)
 		case led_3:
 			TCA0.SINGLE.CMP2 = 0x030;
 			PORTA.OUTSET = PIN6_bm;
-			if ((ADC_boton>0xbb))
+			if ((ADC_boton>boton_adc))
 			{
 				}else{
 				apagar = true;
@@ -251,11 +233,6 @@ int main(void)
 		default:
 		break;
 	}
-
-
-//if(ADC_boton>0xbb){//boton presionado
-//
-//}
     }
 
 }
