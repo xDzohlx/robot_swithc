@@ -17,7 +17,7 @@ typedef unsigned char bool;
 #define false 0
 #define true 1
 
-#define boton_adc 0xD0
+#define boton_adc 0xe5
 
  enum pasos_de_encendido{
 Apagado = 0,
@@ -67,6 +67,8 @@ void setup(void)
 	
 	PORTC.OUTCLR = PIN2_bm;//LED 4
 	
+	PORTA.PIN0CTRL  |= PORT_PULLUPEN_bm;
+	
 	//PORTA.OUTSET = PIN2_bm;//HSS en
 	
 	//Timer
@@ -114,7 +116,6 @@ ISR(ADC0_RESRDY_vect){//solo 4 sensores para empezar
 
 ISR(TCB0_INT_vect){//contador de milisegundos, para generador de trayectorias
 	timer_1++;
-//	timer_2++;
 
 	if (empezar_secuencia)
 	{
@@ -153,26 +154,45 @@ int main(void)
 	PORTC.OUTCLR = PIN2_bm;
     while (1) 
     {
+//!(PORTA.IN & PIN0_bm)
 
-	if ((ADC_boton>boton_adc))//Se requiere detectar cambios en la señal el voltaje de ADC boton no es estatico
+	if (apagar)
 	{
-		empezar_secuencia=true;
-		if (apagar)
-		{
-			empezar_secuencia= false;
-		}
-	}else{
-		
-		if ((secuencia!=led_3))
-		{
-			empezar_secuencia= false;
-		}
-		if (apagar)
-		{
+		if ((ADC_boton>boton_adc)){
+			empezar_secuencia = false;
+			}else{
 			empezar_secuencia = true;
 		}
 		
+	}else
+	{
+		if ((ADC_boton>boton_adc)){
+			empezar_secuencia = true;
+		}else{
+			empezar_secuencia = false;
+		}
 	}
+
+
+	//if ((ADC_boton>boton_adc))//Se requiere detectar cambios en la señal el voltaje de ADC boton no es estatico
+	//{
+		//empezar_secuencia=true;
+		//if (apagar)
+		//{
+			//empezar_secuencia= false;
+		//}
+	//}else{
+		//
+		//if ((secuencia!=led_3))
+		//{
+			//empezar_secuencia= false;
+		//}
+		//if (apagar)
+		//{
+			//empezar_secuencia = true;
+		//}
+		//
+	//}
 	
 	switch(secuencia){//maquina de estados para encender el HSS
 		case Apagado:
