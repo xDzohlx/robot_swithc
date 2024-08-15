@@ -154,7 +154,6 @@ int main(void)
 	PORTC.OUTCLR = PIN2_bm;
     while (1) 
     {
-//!(PORTA.IN & PIN0_bm)
 
 	if (apagar)
 	{
@@ -163,7 +162,6 @@ int main(void)
 			}else{
 			empezar_secuencia = true;
 		}
-		
 	}else
 	{
 		if ((ADC_boton>boton_adc)){
@@ -173,27 +171,6 @@ int main(void)
 		}
 	}
 
-
-	//if ((ADC_boton>boton_adc))//Se requiere detectar cambios en la señal el voltaje de ADC boton no es estatico
-	//{
-		//empezar_secuencia=true;
-		//if (apagar)
-		//{
-			//empezar_secuencia= false;
-		//}
-	//}else{
-		//
-		//if ((secuencia!=led_3))
-		//{
-			//empezar_secuencia= false;
-		//}
-		//if (apagar)
-		//{
-			//empezar_secuencia = true;
-		//}
-		//
-	//}
-	
 	switch(secuencia){//maquina de estados para encender el HSS
 		case Apagado:
 			PORTA.OUTCLR = PIN2_bm;//HSS off
@@ -242,9 +219,10 @@ int main(void)
 			PORTA.OUTSET = PIN6_bm;
 			if ((ADC_boton>boton_adc))
 			{
+				
 				}else{
 				apagar = true;
-				}		
+					}		
 			PORTC.OUTSET = PIN2_bm;//lED 1 ON
 			PORTA.OUTSET = PIN7_bm;//LED 2 ON
 			PORTA.OUTSET = PIN6_bm;//LED 3 ON
