@@ -31,7 +31,7 @@ volatile uint16_t ADC_boton = 0x00;
 uint16_t ADC_boton_calibracion = 0x00;
 volatile uint16_t timer_1 = 0x00;
 volatile uint8_t timer_2 = 0x00;
-
+volatile uint16_t ADC_bateria = 0x00;
 volatile uint8_t comparador = 0x00;
 
 bool empezar_secuencia = false;
@@ -86,7 +86,7 @@ void setup(void)
 	ADC0.CTRLC |= ADC_REFSEL_INTREF_gc|ADC_PRESC_DIV8_gc;//VOLTAJE DE REFERENCIA
 	ADC0.CTRLD |= ADC_INITDLY_DLY16_gc;//CONFIGURACION DEL RELOJ DEL ADC
 	//Canales de 0 al 7 despues a partir del 12 o 0x0C
-	ADC0.MUXPOS = 0x01;//SELECCION DE CANAL DE ADC PD1
+	ADC0.MUXPOS = 0x00;//SELECCION DE CANAL DE ADC PD1
 	ADC0.INTCTRL |= ADC_RESRDY_bm;//Habilitar interrupciones de resultado completo
 	//ADC0.INTCTRL |= ADC_WCMP_bm;
 	ADC0.CTRLA |= ADC_ENABLE_bm;//ENCENDIDO DE ADC
@@ -111,7 +111,16 @@ void setup(void)
 ISR(ADC0_RESRDY_vect){//solo 4 sensores para empezar
 	//Canales de 0 al 7 despues a partir del 12 hasta sensor 14
 
-	ADC_boton = ADC0.RES>>5;
+	
+	if (ADC0.MUXPOS)
+	{
+		ADC_bateria = ADC0.RES>>2;
+	} 
+	else
+	{
+		ADC_boton  = ADC0.RES>>5;
+	}
+	ADC0.MUXPOS ^= 1;
 }
 
 ISR(TCB0_INT_vect){//contador de milisegundos, para generador de trayectorias
@@ -119,7 +128,7 @@ ISR(TCB0_INT_vect){//contador de milisegundos, para generador de trayectorias
 
 	if (empezar_secuencia)
 	{
-		if ((timer_1>1250)){//&&()&&(ADC_boton>0xbb)
+		if ((timer_1>1500)){//&&()&&(ADC_boton>0xbb)
 			secuencia++;
 			timer_1 = 0x00;
 			if (secuencia > led_3){
@@ -198,21 +207,18 @@ int main(void)
 				TCA0.SINGLE.CMP2 = 0x018;//Para encendido suave, carga de capacitores
 				TCA0.SINGLE.CTRLA |= TCA_SINGLE_ENABLE_bm;//Habilitar pwm
 			}
-		//_delay_ms(7500);
 		break;
 		case led_1:
 			PORTC.OUTSET = PIN2_bm;//lED 1 ON
 			PORTA.OUTSET = PIN7_bm;//LED 2 ON
 			PORTA.OUTCLR = PIN6_bm;//LED 3 OFF
 			PORTA.OUTCLR = PIN5_bm;//LED 4 OFF
-		//_delay_ms(7500);
 		break;
 		case led_2:
 			PORTC.OUTSET = PIN2_bm;//lED 1 ON
 			PORTA.OUTSET = PIN7_bm;//LED 2 ON
 			PORTA.OUTSET = PIN6_bm;//LED 3 ON
 			PORTA.OUTCLR = PIN5_bm;//LED 4 OFF
-		//_delay_ms(7500);
 		break;
 		case led_3:
 			TCA0.SINGLE.CMP2 = 0x030;
