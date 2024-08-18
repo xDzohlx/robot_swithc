@@ -16027,6 +16027,7 @@ In this library the device names are the same as the pin names of the symbols, t
 <segment>
 <pinref part="U$1" gate="A" pin="PC2"/>
 <wire x1="-20.32" y1="63.5" x2="-33.02" y2="63.5" width="0.1524" layer="91"/>
+<label x="-38.1" y="63.5" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="BAT_VOLTS" class="0">

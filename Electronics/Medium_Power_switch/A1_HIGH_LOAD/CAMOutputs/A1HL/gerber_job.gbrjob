@@ -1,0 +1,24 @@
+{
+    "Header": {
+        "Comment": "All values are metric (mm)",
+        "CreationDate": "2024-08-05T00:54:39Z",
+        "GenerationSoftware": {
+            "Application": "EAGLE",
+            "Vendor": "Autodesk",
+            "Version": "9.6.2"
+        },
+        "Part": "Single"
+    },
+    "Overall": {
+        "BoardThickness": 1.57,
+        "LayerNumber": 2,
+        "Name": {
+            "ProjectId": "Medium_switch_HIGH_LOAD"
+        },
+        "Owner": "Carlos Vega <dzohl.yo@gmail.com>",
+        "Size": {
+            "X": 46.66,
+            "Y": 41.9
+        }
+    }
+}
