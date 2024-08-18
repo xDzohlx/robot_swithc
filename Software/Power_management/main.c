@@ -57,7 +57,9 @@ void setup(void)
 	
 	PORTF.DIRSET = PIN4_bm;//VCC enable PIN
 	
-	PORTA.DIRSET = PIN2_bm|PIN4_bm|PIN5_bm|PIN6_bm|PIN7_bm;//LEDS Y HSS
+	PORTA.DIRSET = PIN2_bm|PIN4_bm|PIN5_bm|PIN6_bm|PIN7_bm;//LEDS Y HSS|PIN2_bm|
+	
+	PORTA.DIRCLR = PIN0_bm;
 	
 	PORTA.OUTCLR = PIN5_bm|PIN6_bm|PIN7_bm;//otros leds
 	
@@ -96,11 +98,11 @@ void setup(void)
 	
 	
 	//timer TCA
-	TCA0.SINGLE.CTRLA |= TCA_SINGLE_CLKSEL_DIV2_gc;//fuente de reloj,
-	TCA0.SINGLE.PER = 0x030;//Selección de resolucion de pwm y periodo total de pwm
+	TCA0.SINGLE.CTRLA |= TCA_SINGLE_CLKSEL_DIV256_gc;//fuente de reloj,
+	TCA0.SINGLE.PER = 0x0FA;//Selección de resolucion de pwm y periodo total de pwm
 	TCA0.SINGLE.CTRLB |= TCA_SINGLE_CMP2_bm|TCA_SINGLE_WGMODE_SINGLESLOPE_gc;//Habilitar comparador y seleccion de modo de de generacion de onda con modo de rampa sensilla TCA_SINGLE_CMP1EN_bm|
 	//TCA0.SINGLE.CMP1 = 0x000;//registro de 16 bits para comparacion y pediodo de pwm
-	TCA0.SINGLE.CMP2 = 0x018;
+	TCA0.SINGLE.CMP0 = 0x07D;
 
 			//TCB2.CTRLA |= TCB_ENABLE_bm|TCB_CLKSEL_CLKDIV2_gc;
 			//TCB2.CCMP = 0xFFFE;//Valor top 4000 interrupcion cada 10 milisegundos
@@ -160,7 +162,9 @@ int main(void)
 	_delay_ms(1500);
 	PORTF.OUTSET = PIN4_bm;//VCC enable
 	
-	PORTC.OUTCLR = PIN2_bm;
+	//PORTC.OUTCLR = PIN2_bm;
+	//TCA0.SINGLE.CMP2 = 0x018;//Para encendido suave, carga de capacitores
+
     while (1) 
     {
 
@@ -204,7 +208,7 @@ int main(void)
 			PORTA.OUTCLR = PIN5_bm;//LED 4 OFF
 			if (!apagar)
 			{
-				TCA0.SINGLE.CMP2 = 0x018;//Para encendido suave, carga de capacitores
+				TCA0.SINGLE.CMP2 = 0x07D;//Para encendido suave, carga de capacitores
 				TCA0.SINGLE.CTRLA |= TCA_SINGLE_ENABLE_bm;//Habilitar pwm
 			}
 		break;
@@ -221,7 +225,7 @@ int main(void)
 			PORTA.OUTCLR = PIN5_bm;//LED 4 OFF
 		break;
 		case led_3:
-			TCA0.SINGLE.CMP2 = 0x030;
+			TCA0.SINGLE.CMP2 = 0x0FA;
 			PORTA.OUTSET = PIN6_bm;
 			if ((ADC_boton>boton_adc))
 			{
